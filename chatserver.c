@@ -1,4 +1,7 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 711559831293fc2f4d8cfad1e4043aba6f3d43cc
 #include <stdio.h>
 #include <sys/socket.h> 
 #include <stdlib.h>
@@ -29,6 +32,7 @@ int main(int argc, char**argv){
     	}
 	}
 }
+<<<<<<< HEAD
 =======
 #include <iostream>
 #include <WS2tcpip.h>
@@ -47,3 +51,5 @@ void main()
 	// ShutDown winsock
 	}
 >>>>>>> 9a0b67b0bafe7c7580ff93d0122e41c76e736992
+=======
+>>>>>>> 711559831293fc2f4d8cfad1e4043aba6f3d43cc

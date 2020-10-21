@@ -78,30 +78,32 @@ void main()
 				{
 					// Drop the client
 					// Le decimos bye al usuario
-					string despedida = "Bye!\r\n";
+					string despedida = "Bye\r\n";
 					send(client, despedida.c_str(), despedida.size() + 1, 0);
 					closesocket(sock);
 					FD_CLR(sock, &master);
 				}
 				else
 				{
-					// Check to see if it's a command. \quit kills the server
+					// Check to see if it's a command.
+					// Checamos que el mensaje no es el comando de cerrar
 					if (buf[0] == '\\')
 					{
-						// Is the command quit? 
+						// If it is command quit
+						// Checamos si es el comando para cerrar
 						string cmd = string(buf, bytesIn);
 						if (cmd == "\\quit")
 						{
 							running = false;
 							break;
 						}
-
 						// Unknown command
+						// Si es un comando random lo ignoramos
 						continue;
 					}
 
-					// Send message to other clients, and definiately NOT the listening socket
-
+					// Send message to other clients
+					// Mandamos los mensajes a los otros clientes
 					for (int i = 0; i < master.fd_count; i++)
 					{
 						SOCKET outSock = master.fd_array[i];

@@ -23,6 +23,7 @@ int main(int argc, char**argv){
     	send(fd, message, strlen(message), 0);
     	//An extra breaking condition can be added here (to terminate the while loop)
 	}
+	#prueba
 
     return 0;
 

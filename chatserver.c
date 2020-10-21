@@ -122,27 +122,31 @@ void main()
 	}
 
 	// Remove the listening socket from the master file descriptor set and close it
-	// to prevent anyone else trying to connect.
+	//Removemos el threat
 	FD_CLR(listening, &master);
 	closesocket(listening);
 	
-	// Message to let users know what's happening.
-	string msg = "Server is shutting down. Goodbye\r\n";
+	// Message to let users that the server is shutting down
+	// Avisamos a los usuarios que el server se esta apagando
+	string msg = "Bye\r\n";
 
 	while (master.fd_count > 0)
 	{
 		// Get the socket number
+		// Agarramos el threat que fue se va a cerrar
 		SOCKET sock = master.fd_array[0];
-
-		// Send the goodbye message
+		// We send the message
+		// Mandamos el mensage a los users
 		send(sock, msg.c_str(), msg.size() + 1, 0);
 
 		// Remove it from the master file list and close the socket
+		// Quitamos el threat de la lista de masters y lo cerramos
 		FD_CLR(sock, &master);
 		closesocket(sock);
 	}
 
 	// Cleanup winsock
+	// Limpiamos el winsock
 	WSACleanup();
 
 	system("pause");

@@ -33,7 +33,7 @@ void remove_client(client_t* client) {
 	for(int i = 0; i < MAX_CLIENTS; i++) {
 		if(clients[i]) {
 			if(clients[i] == client) {
-				printf("Usuario %s removido\n", client->name);
+				// printf("Usuario %s removido\n", client->name);
 				clients[i] = NULL;
 				break;
 			}
@@ -44,9 +44,7 @@ void remove_client(client_t* client) {
 void broadcast_message(char *s, client_t* client) {	
 	for(int i = 0; i < MAX_CLIENTS; i++) {
 		if(clients[i]) {
-			printf("TEST: %s\n", clients[i]->name);
 			if(clients[i] != client) {
-				printf("Sending message to %s\n", clients[i]->name);
 				write(clients[i]->sockfd, s, strlen(s));
 			}
 		}
@@ -55,28 +53,41 @@ void broadcast_message(char *s, client_t* client) {
 
 void *handle_client(void *arg) {
 	int flag = 0;
+	char full_message[MESSAGE_LEN+NAME_LEN];
 	client_t *client = (client_t*)arg;
 	
 	if(read(client->sockfd, message, MESSAGE_LEN) > 0) {
 		printf("%s se ha unido\n", message);
 		strcpy(client->name, message);
+		strcpy(full_message, client->name);
+		strcat(full_message, " se ha unido\n");
+		broadcast_message(full_message, client);
 	} else {
 		printf("Error con el nickname!\n");
 		flag = 1;
 	};
+	
 	bzero(message, MESSAGE_LEN);
+	bzero(full_message, MESSAGE_LEN+NAME_LEN);
 	
 	while(1) {
 		if(flag) {
 			break;
 		}
+		
 		int receive = recv(client->sockfd, message, MESSAGE_LEN, 0);
 		if(receive > 0) {
 			printf("%s -> %s", client->name, message);
-			broadcast_message(message, client);
+			strcpy(full_message, client->name);
+			strcat(full_message, ": ");
+			strcat(full_message, message);
+			broadcast_message(full_message, client);
 		} else if(strcmp(message, "bye") == 0) {
 			printf("%s -> %s", client->name, message);
-			broadcast_message(message, client);
+			strcpy(full_message, client->name);
+			strcat(full_message, ": ");
+			strcat(full_message, message);
+			broadcast_message(full_message, client);
 			flag = 1;
 		} else {
 			flag = 1;
@@ -84,6 +95,9 @@ void *handle_client(void *arg) {
 		bzero(message, MESSAGE_LEN);
 	}
 	printf("%s se ha ido\n", client->name);
+	strcpy(full_message, client->name);
+	strcat(full_message, " se ha ido\n");
+	broadcast_message(full_message, client);
 	close(client->sockfd);
 	remove_client(client);
 	free(client);

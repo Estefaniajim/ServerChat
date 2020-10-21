@@ -10,6 +10,41 @@
 #define MESSAGE_LEN 100
 #define NAME_LEN 50
 
+int flag = 0;
+int connectionfd = 0;
+
+void receive_handler() {
+	char message[MESSAGE_LEN] = "";
+	while(1) {
+		int receive = recv(connectionfd, message, MESSAGE_LEN, 0);
+		if(receive > 0) {
+			printf("%s", message);
+			printf("> ");
+  			fflush(stdout);
+		} else if(receive == 0) {
+			break;
+		}
+		bzero(message, MESSAGE_LEN);
+	}
+	printf("RECEIVE HANDLER DONE");
+}
+
+void send_handler() {
+	char message[MESSAGE_LEN] = "";
+	while(1) {
+		printf("> ");
+  		fflush(stdout);
+		fgets(message, MESSAGE_LEN, stdin);
+		send(connectionfd, message, strlen(message), 0);
+		if(strcmp(message, "bye") == 0) {
+			break;
+		}
+		bzero(message, MESSAGE_LEN);
+	}
+	printf("SEND HANDLER DONE");
+	flag = 1;
+}
+
 // Comando para compilar: gcc chatclient.c -o chatclient -pthread
 int main(int argc, char **argv) {
 	if(argc != 4) {
@@ -27,7 +62,7 @@ int main(int argc, char **argv) {
 	//TODO: Usar la IP de argv[1]
 	inet_pton(AF_INET, "127.0.0.1", &server_addr.sin_addr);
 	
-	int connectionfd = socket(AF_INET, SOCK_STREAM, 0);
+	connectionfd = socket(AF_INET, SOCK_STREAM, 0);
 	if(connect(connectionfd, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0) {
 		printf("Connection error!!\n");
 		return EXIT_FAILURE;
@@ -35,16 +70,20 @@ int main(int argc, char **argv) {
 	
 	printf("Bienvenido al chat\n");
 	
-	char message[MESSAGE_LEN] = "";
 	send(connectionfd, name, strlen(name), 0);
+	
+	pthread_t send_thread;
+	pthread_create(&send_thread, NULL, (void *)send_handler, NULL);
+	pthread_t receive_thread;
+	pthread_create(&receive_thread, NULL, (void *)receive_handler, NULL);
+	
 	while(1) {
-		//TODO: Dividir entrada y salida en dos hilos
-		// if((read(connectionfd, message, MESSAGE_LEN) > 0)) {
-		// 	printf("Incoming message: %s", message);
-		// }
-		// bzero(message, MESSAGE_LEN);
-		printf("> ");
-		fgets(message, MESSAGE_LEN, stdin);
-		send(connectionfd, message, strlen(message), 0);
+		if(flag) {
+			break;
+		}
+		
 	}
+	
+	close(connectionfd);
+	return EXIT_SUCCESS;
 }

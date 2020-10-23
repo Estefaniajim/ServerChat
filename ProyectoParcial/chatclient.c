@@ -17,31 +17,29 @@ void receive_handler() {
 	char message[MESSAGE_LEN] = "";
 	while(1) {
 		int receive = recv(connectionfd, message, MESSAGE_LEN, 0);
-		if(receive > 0) {
-			printf("%s", message);
-			printf("> ");
+		printf("%s", message);
+		if(strcmp(message, "Adiós desde el server\n") == 0) {
+			flag = 1;
+		} else if(receive > 0) {
+			printf("> %s", message);
   			fflush(stdout);
 		} else if(receive == 0) {
 			break;
 		}
 		bzero(message, MESSAGE_LEN);
 	}
-	printf("RECEIVE HANDLER DONE");
 }
 
 void send_handler() {
 	char message[MESSAGE_LEN] = "";
 	while(1) {
-		printf("> ");
-  		fflush(stdout);
 		fgets(message, MESSAGE_LEN, stdin);
 		send(connectionfd, message, strlen(message), 0);
-		if(strcmp(message, "bye") == 0) {
+		if(strcmp(message, "bye\n") == 0) {
 			break;
 		}
 		bzero(message, MESSAGE_LEN);
 	}
-	printf("SEND HANDLER DONE");
 	flag = 1;
 }
 
@@ -68,7 +66,7 @@ int main(int argc, char **argv) {
 		return EXIT_FAILURE;
 	};
 	
-	printf("Bienvenido al chat\n");
+	printf("> Bienvenido al chat\n");
 	
 	send(connectionfd, name, strlen(name), 0);
 	

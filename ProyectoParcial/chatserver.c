@@ -4,7 +4,9 @@
 #include <string.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
+#include <sys/types.h>
 #include <pthread.h>
+#include <signal.h>
 
 #define MAX_CLIENTS 5
 #define MESSAGE_LEN 100
@@ -33,7 +35,6 @@ void remove_client(client_t* client) {
 	for(int i = 0; i < MAX_CLIENTS; i++) {
 		if(clients[i]) {
 			if(clients[i] == client) {
-				// printf("Usuario %s removido\n", client->name);
 				clients[i] = NULL;
 				break;
 			}
@@ -76,19 +77,19 @@ void *handle_client(void *arg) {
 		}
 		
 		int receive = recv(client->sockfd, message, MESSAGE_LEN, 0);
-		if(receive > 0) {
-			printf("%s -> %s", client->name, message);
-			strcpy(full_message, client->name);
-			strcat(full_message, ": ");
-			strcat(full_message, message);
-			broadcast_message(full_message, client);
-		} else if(strcmp(message, "bye") == 0) {
+		if(strcmp(message, "bye\n") == 0) {
 			printf("%s -> %s", client->name, message);
 			strcpy(full_message, client->name);
 			strcat(full_message, ": ");
 			strcat(full_message, message);
 			broadcast_message(full_message, client);
 			flag = 1;
+		} else if(receive > 0) {
+			printf("%s -> %s", client->name, message);
+			strcpy(full_message, client->name);
+			strcat(full_message, ": ");
+			strcat(full_message, message);
+			broadcast_message(full_message, client);
 		} else {
 			flag = 1;
 		}
@@ -104,8 +105,25 @@ void *handle_client(void *arg) {
 	pthread_detach(pthread_self());
 }
 
+void signal_handler(int signum) {
+	bzero(message, MESSAGE_LEN);
+	strcpy(message, "Adiós desde el server");
+	for(int i = 0; i < MAX_CLIENTS; i++) {
+		if(clients[i]) {
+			write(clients[i]->sockfd, message, strlen(message));
+			close(clients[i]->sockfd);
+			clients[i] = NULL;
+		}
+	}
+	pid_t pid = getpid();
+	kill(pid, 9);
+}
+
 // Comando de compilaciรณn: gcc chatserver.c -o chatserver -pthread
 int main(int argc, char **argv) {
+	
+	signal(2, signal_handler);
+	
 	if(argc != 2) {
 		printf("Uso: %s <port>\n", argv[0]);
 		return EXIT_FAILURE;

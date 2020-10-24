@@ -54,6 +54,8 @@ int main(int argc, char **argv) {
 		return EXIT_FAILURE;
 	}
 	
+	char *ip = argv[1];
+	printf("%s\n", ip);
 	int port = atoi(argv[2]);
 	char name[NAME_LEN] = "";
 	strcpy(name, argv[3]);
@@ -62,7 +64,8 @@ int main(int argc, char **argv) {
 	server_addr.sin_family = AF_INET;
 	server_addr.sin_port = htons(port);
 	//TODO: Usar la IP de argv[1]
-	inet_pton(AF_INET, "127.0.0.1", &server_addr.sin_addr);
+	server_addr.sin_addr.s_addr = inet_addr(ip);
+	// inet_pton(AF_INET, "127.0.0.1", &server_addr.sin_addr);
 	
 	connectionfd = socket(AF_INET, SOCK_STREAM, 0);
 	if(connect(connectionfd, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0) {
@@ -83,7 +86,6 @@ int main(int argc, char **argv) {
 		if(flag) {
 			break;
 		}
-		
 	}
 	
 	close(connectionfd);

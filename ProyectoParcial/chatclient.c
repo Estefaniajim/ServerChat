@@ -55,7 +55,6 @@ int main(int argc, char **argv) {
 	}
 	
 	char *ip = argv[1];
-	printf("%s\n", ip);
 	int port = atoi(argv[2]);
 	char name[NAME_LEN] = "";
 	strcpy(name, argv[3]);

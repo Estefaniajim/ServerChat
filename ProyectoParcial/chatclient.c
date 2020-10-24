@@ -62,9 +62,7 @@ int main(int argc, char **argv) {
 	struct sockaddr_in server_addr;
 	server_addr.sin_family = AF_INET;
 	server_addr.sin_port = htons(port);
-	//TODO: Usar la IP de argv[1]
 	server_addr.sin_addr.s_addr = inet_addr(ip);
-	// inet_pton(AF_INET, "127.0.0.1", &server_addr.sin_addr);
 	
 	connectionfd = socket(AF_INET, SOCK_STREAM, 0);
 	if(connect(connectionfd, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0) {

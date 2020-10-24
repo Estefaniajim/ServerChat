@@ -17,10 +17,14 @@ void receive_handler() {
 	char message[MESSAGE_LEN] = "";
 	while(1) {
 		int receive = recv(connectionfd, message, MESSAGE_LEN, 0);
-		printf("%s", message);
-		if(strcmp(message, "Adiós desde el server\n") == 0) {
+		if(strcmp(message, "Bye desde el server") == 0) {
+			printf("> %s\n", message);
 			flag = 1;
-		} else if(receive > 0) {
+		} 
+		else if(strcmp(message, "Error MAX CLIENTS") == 0) {
+			printf("> Número de clientes excedido: No puedes entrar a la sala por el momento.\n");
+			flag = 1;
+		}else if(receive > 0) {
 			printf("> %s", message);
   			fflush(stdout);
 		} else if(receive == 0) {
@@ -66,7 +70,7 @@ int main(int argc, char **argv) {
 		return EXIT_FAILURE;
 	};
 	
-	printf("> Bienvenido al chat\n");
+	printf("> Bienvenid@ al chat\n");
 	
 	send(connectionfd, name, strlen(name), 0);
 	

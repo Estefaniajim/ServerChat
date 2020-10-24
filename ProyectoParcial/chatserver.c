@@ -42,6 +42,16 @@ void remove_client(client_t* client) {
 	}
 }
 
+int count_clients() {
+	int sum = 0;
+	for(int i = 0; i < MAX_CLIENTS; i++) {
+		if(clients[i]) {
+			sum++; 
+		}
+	}
+	return sum;
+}
+
 void broadcast_message(char *s, client_t* client) {	
 	for(int i = 0; i < MAX_CLIENTS; i++) {
 		if(clients[i]) {
@@ -107,7 +117,7 @@ void *handle_client(void *arg) {
 
 void signal_handler(int signum) {
 	bzero(message, MESSAGE_LEN);
-	strcpy(message, "Adiós desde el server");
+	strcpy(message, "Bye desde el server");
 	for(int i = 0; i < MAX_CLIENTS; i++) {
 		if(clients[i]) {
 			write(clients[i]->sockfd, message, strlen(message));
@@ -156,7 +166,13 @@ int main(int argc, char **argv) {
 		client->address = client_addr;
 		client->sockfd = connectionfd;
 		
-		add_client(client);
-		pthread_create(&thread, NULL, &handle_client, (void*)client);
+		if(count_clients() == MAX_CLIENTS) {
+			bzero(message, MESSAGE_LEN);
+			strcpy(message, "Error MAX CLIENTS");
+			write(client->sockfd, message, strlen(message));
+		} else {
+			add_client(client);
+			pthread_create(&thread, NULL, &handle_client, (void*)client);
+		}
 	}
 }

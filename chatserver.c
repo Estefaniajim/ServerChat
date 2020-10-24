@@ -210,7 +210,7 @@ void *handle_client(void *arg)
 			if (strlen(buff_out) > 0)
 			{
 				send_message(buff_out, cli->uid);
-				printf("%s\n", buff_out);
+				printf("%s", buff_out);
 			}
 		}
 		else if (receive == 0 || strcmp(buff_out, "bye") == 0)

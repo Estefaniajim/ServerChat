@@ -109,7 +109,7 @@ void emisor()
 
 	while (1)
 	{
-		reset_stdout();
+		fflush(stdout);
     	fgets(message, LENGTH, stdin);
     	str_trim_lf(message, LENGTH);
 
@@ -135,20 +135,16 @@ void receptor()
 		int receive = recv(sockfd, message, LENGTH, 0); //recibe los mensajes del servidor
 		if (receive > 0)
 		{
-			printf("%s", message); //Imprime los mensajes del servidor
 			reset_stdout();
+			printf("%s", message); //Imprime los mensajes del servidor
 		}
 		else if (receive == 0)
 		{
 			break;
 		}
-		else
-		{
-			//
-		}
 		memset(message, 0, sizeof(message)); //resetea el buffer de mensajes
 	}
-	printf("Bye desde el Server");
+	printf("> Bye desde el Server");
 	catch_ctrl_c_and_exit(2);
 }
 
